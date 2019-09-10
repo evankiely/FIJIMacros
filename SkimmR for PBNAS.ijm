@@ -30,8 +30,8 @@ for (i = 0; i < (files.length); i++) //Increments through files by two since the
 //---------- For comments on below, see above
 	if (indexOf(tempName, redID) >= 0) //Verifies we are operating on the appropriate channel first
 	{
-		tempNameRed = files[i+1] + " - Red";
-		open(openPath + files[i+1]);
+		tempNameRed = files[i] + " - Red";
+		open(openPath + files[i]);
 		rename(tempNameRed);
 
 		selectWindow(tempNameRed);
