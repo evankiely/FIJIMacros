@@ -8,6 +8,8 @@ The macros on tap today are:
    - Can: Skim first Z, Remove Specified range of Zs, Merge disparate channels based on user provided channel ID, Create a hyperstack of resulting images, and Create a max projection from the hyperstack.
    - Output: A concatenated stack of each channel as Z stacks over time (saved as a TIF), A hyperstack of all channels overtime as Z stacks (saved as a TIF), A max projection of the aforementioned hyperstack (saved as a TIF), and A timestamped AVI of resulting stack of projections
    
- - SkimmR for PBNAS: Remove the first Z from a stack via max project, assign channel, repeat for the next color, merge, save as .tif
+ - SkimmR for PBNAS:
+    - Function: Remove the first Z from a stack via max project, Assign channel, Repeat for the next color, Merge channels
+    - Output: A series of merged max projections saved as TIFs. (one per time point)
  
  And our special is a lovely Chilean Sea Bass.
