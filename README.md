@@ -5,7 +5,7 @@ This is an assortment of macros I have written to help automate processing of 5 
 
 The macros on tap today are:
  - AutomatR v0.1: A very early attempt at a wizard of sorts for the particular kind of processing my lab encounters daily.
-   - Can: Skim first Z, Remove Specified range of Zs, Merge disparate channels based on user provided channel ID, Create a hyperstack of resulting images, and Create a max projection from the hyperstack.
+   - Can: Remove Specified range of Zs, Skim first Z via max projection, Concatenate max projections over time based on user provided channel ID, and Merge disparate channels.
    - Output: Each channel stacked over time as max projections (i.e. two channels = two stacks) and a timestamped AVI of those stacks merged.
    
  - SkimmR for PBNAS:
