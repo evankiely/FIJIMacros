@@ -3,12 +3,11 @@
 openPath = getDirectory("Choose Source Directory");
 files = getFileList(openPath);
 savePath = getDirectory("Choose Destination Directory");
-count = 1;
 greenID = "CHN00";
 redID = "CHN01";
 
 setBatchMode(true); //Allows the below to be performed behind the scenes.
-for (i = 0; i < (files.length); i=i+2) //Increments through files by two since there are two channels present and accounted for below
+for (i = 0; i < (files.length); i++) //Increments through files by two since there are two channels present and accounted for below
 {
 	tempName = files[i];
 
@@ -44,14 +43,12 @@ for (i = 0; i < (files.length); i=i+2) //Increments through files by two since t
 		rename(tempNameRed + " - Max");
 		close(tempNameRed);
 		rename(tempNameRed);
-	}
-//----------
+		
 		run("Merge Channels...", "c1=["+tempNameGreen+"] c2=["+tempNameRed+"] create"); //Merges two resulting max projections
 		mergedName = "Merged " + count;
 		rename(mergedName);
 		saveAs("Tiff", savePath + mergedName); //Saves each resulting merged max projection separately. This is done to allow for use on systems/workstations with few available resources; expectation is that the next step is simply File -> Import -> Open Sequence to open as a stack
 		run("Close All");
-
-		count++;
+	}
 }
 setBatchMode(false);
