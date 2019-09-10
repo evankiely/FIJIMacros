@@ -1,4 +1,4 @@
-//SkimmR: Skim the Top Slice Off of a Batch of Z-Stacks, etc.
+//SkimmR: Skim the Top Slice Off of a Batch of Z-Stacks by Max Projecting Everything Below
 
 openPath = getDirectory("Choose Source Directory");
 files = getFileList(openPath);
@@ -17,14 +17,11 @@ for (i = 0; i < (files.length); i=i+2) //Increments through files by two since t
 		rename(tempNameGreen);
 
 		selectWindow(tempNameGreen);
-		run("Slice Remover", "first=1 last=1 increment=1"); //Removes the top Z frame
-		rename(tempNameGreen);
-
 		run("Green"); //Sets channel to green
 		rename(tempNameGreen);
 
 		selectWindow(tempNameGreen);
-		run("Z Project...", "projection=[Max Intensity] all"); //Creates a maximum intensity projection from remaining Z frmes
+		run("Z Project...", "start=[2] projection=[Max Intensity]"); //Creates a maximum intensity projection from remaining Z frames
 		rename(tempNameGreen + " - Max");
 		close(tempNameGreen);
 		rename(tempNameGreen);
@@ -36,14 +33,11 @@ for (i = 0; i < (files.length); i=i+2) //Increments through files by two since t
 		rename(tempNameRed);
 
 		selectWindow(tempNameRed);
-		run("Slice Remover", "first=1 last=1 increment=1");
-		rename(tempNameRed);
-
 		run("Red");
 		rename(tempNameRed);
 
 		selectWindow(tempNameRed);
-		run("Z Project...", "projection=[Max Intensity] all");
+		run("Z Project...", "start=[2] projection=[Max Intensity]");
 		rename(tempNameRed + " - Max");
 		close(tempNameRed);
 		rename(tempNameRed);
