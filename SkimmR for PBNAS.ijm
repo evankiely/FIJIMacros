@@ -1,34 +1,36 @@
-//SkimmR: Skim the Top Slice Off of a Batch of Z-Stacks
+//SkimmR: Skim the Top Slice Off of a Batch of Z-Stacks, etc.
 
 openPath = getDirectory("Choose Source Directory");
 files = getFileList(openPath);
 savePath = getDirectory("Choose Destination Directory");
 count = 1;
 
-setBatchMode(true);
-for (i = 0; i < (files.length); i=i+2)
+setBatchMode(true); //Allows the below to be performed behind the scenes.
+for (i = 0; i < (files.length); i=i+2) //Increments through files by two since there are two channels present and accounted for below
 {
 	tempName = files[i];
 
-	if (indexOf(tempName, "CHN00") >= 0)
+	if (indexOf(tempName, "CHN00") >= 0) //Verifies we are operating on the appropriate channel first
 	{
 		tempNameGreen = files[i] + " - Green";
-		open(openPath + files[i]);
+		open(openPath + files[i]); //Opens the file at index i
 		rename(tempNameGreen);
 
 		selectWindow(tempNameGreen);
-		run("Slice Remover", "first=1 last=1 increment=1");
+		run("Slice Remover", "first=1 last=1 increment=1"); //Removes the top Z frame
 		rename(tempNameGreen);
 
-		run("Green");
+		run("Green"); //Sets channel to green
 		rename(tempNameGreen);
 
 		selectWindow(tempNameGreen);
-		run("Z Project...", "projection=[Max Intensity] all");
+		run("Z Project...", "projection=[Max Intensity] all"); //Creates a maximum intensity projection from remaining Z frmes
 		rename(tempNameGreen + " - Max");
 		close(tempNameGreen);
 		rename(tempNameGreen);
-//----------
+		
+//---------- For comments on below, see above
+
 		tempNameRed = files[i+1] + " - Red";
 		open(openPath + files[i+1]);
 		rename(tempNameRed);
@@ -46,10 +48,10 @@ for (i = 0; i < (files.length); i=i+2)
 		close(tempNameRed);
 		rename(tempNameRed);
 //----------
-		run("Merge Channels...", "c1=["+tempNameGreen+"] c2=["+tempNameRed+"] create");
+		run("Merge Channels...", "c1=["+tempNameGreen+"] c2=["+tempNameRed+"] create"); //Merges two resulting max projections
 		mergedName = "Merged " + count;
 		rename(mergedName);
-		saveAs("Tiff", savePath + mergedName);
+		saveAs("Tiff", savePath + mergedName); //Saves each resulting merged max projection separately. This is done to allow for use on systems/workstations with few available resources; expectation is that the next step is simply File -> Import -> Open Sequence to open as a stack
 		run("Close All");
 
 		count++;
