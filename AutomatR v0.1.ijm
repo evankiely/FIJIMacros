@@ -1,8 +1,7 @@
 //Welcome to AutomatR: A Batch Processing Wizard for FIJI! v0.1
 
 /* To Do:
- *  Make Color Channel Assignment Truly User Assignable
- *  	Min and Max for Channel Values
+ *  Min and Max for Channel Values?
  *  Make User Input More Eficient in General; Figure Out How Much/Which User Provided Values can be Reused/Repurposed or Discarded
  *  	For Example: No Need for Number of Timepoints if the Provided Folder is Free of Misc. Files
  *  	(Channel IDs can Even be Employed to Count Specific Files) -- numTPs = len(files)/numChan
@@ -32,8 +31,8 @@ savePath = getDirectory("Choose Destination Directory"); //Allows user to select
 text that give the user an idea of what is expected in those fields/what those fields are for*/
 
 title = "Project";
+redID = ""; greenID = ""; blueID = "";
 numTPs = 0; stackSize = 0;
-numChannels = "";
 interval = 1;
 fontSize = 60;
 zSlice = newArray("Yes", "No");
@@ -47,10 +46,13 @@ orientationChoice = "";
 
 Dialog.create("AutomatR"); //Creates dialog box
 Dialog.addMessage("Please provide the following information."); //Adds message text
+Dialog.addMessage("Leave Channel ID Blank if Unused.");
+Dialog.addString("Red Channel ID:", redID, 15);
+Dialog.addString("Green Channel ID:", greenID, 15);
+Dialog.addString("Blue Channel ID:", blueID, 15);
 Dialog.addString("Title:", title, 15); //Input for title, which later becomes file name
 Dialog.addNumber("Number of Time Points:", 2, 0, 15, "");
 Dialog.addNumber("Z Frames per Timepoint:", 105, 0, 15, "");
-Dialog.addNumber("Number of Channels:", 2, 0, 15, "");
 Dialog.addNumber("Time Between Acquisitions (Minutes):", 1, 0, 15, "");
 //Dialog.addNumber("Font Size for Timestamp:", 60, 0, 15, "");
 Dialog.addChoice("I Would Like to Remove the First Frame of Every Z:", zSlice);
@@ -61,10 +63,12 @@ Dialog.show(); //This opens the dialog box we created
 
 //Below gathers user input from above dialog box and reassigns the relevant variables such that they now carry those values
 
+redID = Dialog.getString();
+greenID = Dialog.getString();
+blueID = Dialog.getString();
 title = Dialog.getString();
 numTPs = Dialog.getNumber();
 stackSize = Dialog.getNumber();
-numChan = Dialog.getNumber();
 interval = Dialog.getNumber();
 //fontSize = Dialog.getNumber();
 zSliceChoice = Dialog.getChoice();
@@ -86,40 +90,38 @@ if (zSliceChoice == "Yes")
 }
 
 setBatchMode(true);
-automatR(numChan, openPath, files, title, stackSize, zSliceChoice, rangeStart, rangeEnd, orientationChoice, savePath, numTPs, interval, takeFirst);
+automatR(openPath, files, title, stackSize, zSliceChoice, rangeStart, rangeEnd, orientationChoice, savePath, numTPs, interval, takeFirst);
 //Function Call Above, Function Creation Below <----------------------
-function automatR(numChan, openPath, files, title, stackSize, zSliceChoice, rangeStart, rangeEnd, orientationChoice, savePath, numTPs, interval, takeFirst)
+function automatR(openPath, files, title, stackSize, zSliceChoice, rangeStart, rangeEnd, orientationChoice, savePath, numTPs, interval, takeFirst)
 {
-	CHN00 = newArray("CHN00"); CHN01 = newArray("CHN01"); CHN02 = newArray("CHN02");
-	colors = newArray("Red", "Blue", "Green");
-	colorCHN00 = newArray(""); colorCHN01 = newArray(""); colorCHN02 = newArray("");
+	numChan = 0;
+	channelIDs = newArray(redID, greenID, blueID);
+	for (j = 0; j < 3; j++)
+	{
+		if (lengthOf(channelIDs[j]) > 0)
+		{
+			numChan++;
+		}
+	}
 	
-	idR(numChan, colors, CHN00, colorCHN00, CHN01, colorCHN01, CHN02, colorCHN02);
-
-	CHN00Name = title + " - " + colorCHN00[0];
-	CHN01Name = title + " - " + colorCHN01[0];
-	CHN02Name = title + " - " + colorCHN02[0];
+	channelColors = newArray("Red", "Green", "Blue");
 	
-	channelIDs = newArray(CHN00[0], CHN01[0], CHN02[0]);
-	channelColors = newArray(colorCHN00[0], colorCHN01[0], colorCHN02[0]);
-	channelNames = newArray(CHN00Name, CHN01Name, CHN02Name);
+	redChan = title + " - Red";
+	greenChan = title + " - Green";
+	blueChan = title + " - Blue";
+	
+	channelNames = newArray(redChan, greenChan, blueChan);
 
 	if (numChan > 1)
 	{
 		for (i = 0; i < numChan; i++) //Allows this macro to expand to a huge number of comingled channels
 		{
+			numberOpened = 0;
 			for (timePoint = 0; timePoint < (files.length); timePoint++) //Runs through input folder
 			{
 				if (indexOf(files[timePoint], channelIDs[i]) >= 0) //Effectively allows segregation of files by channel ID by indexing through channelIDs list by increment value of the first for loop
 				{
-					if (timePoint == i) //Opens first instance of a given channel by itself so as to avoid any errors from attempting to concatenate with only a single window open
-					{
-						open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
-						rename(channelNames[i]);
-						
-						clippR(channelNames[i], rangeStart, rangeEnd, takeFirst, zSliceChoice);
-					}
-					if (timePoint > i)
+					if (numberOpened > 0)
 					{
 						open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 						tempName = getTitle();
@@ -129,9 +131,19 @@ function automatR(numChan, openPath, files, title, stackSize, zSliceChoice, rang
 						run("Concatenate...", "open image1 =  channelNames[i] + image2 = tempName");
 						rename(channelNames[i]);
 					}
+					if (numberOpened == 0) //Opens first instance of a given channel by itself so as to avoid any errors from attempting to concatenate with only a single window open
+					{
+						open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
+						rename(channelNames[i]);
+						
+						clippR(channelNames[i], rangeStart, rangeEnd, takeFirst, zSliceChoice);
+						
+						numberOpened++;
+					}
 				}
 				if (files.length == (timePoint + 1))
 				{
+					run(channelColors[i]);
 					saveAs("Tiff", savePath + channelNames[i]);
 					close();
 				}
@@ -146,17 +158,10 @@ function automatR(numChan, openPath, files, title, stackSize, zSliceChoice, rang
 	{
 		for (timePoint = 0; timePoint < files.length; timePoint++)
 		{
+			numberOpened = 0;
 			if (indexOf(files[timePoint], channelIDs[0]) >= 0)
 			{
-				if (timePoint == 0)
-				{
-					open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
-					rename(channelNames[0]);
-
-					clippR(channelNames[0], rangeStart, rangeEnd, takeFirst, zSliceChoice);
-				}
-				
-				if (timePoint > 0)
+				if (numberOpened > 0)
 				{
 					open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 					tempName = getTitle();
@@ -166,7 +171,15 @@ function automatR(numChan, openPath, files, title, stackSize, zSliceChoice, rang
 					run("Concatenate...", "open image1 = channelNames[0] image2 = tempName");
 					rename(channelNames[0]);
 				}
+				if (numberOpened == 0)
+				{
+					open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
+					rename(channelNames[0]);
+					
+					clippR(channelNames[0], rangeStart, rangeEnd, takeFirst, zSliceChoice);
 
+					numberOpened++;
+				}
 				if (timePoint == (files.length - 1))
 				{
 					run(colorCHN00[0]);
@@ -177,56 +190,6 @@ function automatR(numChan, openPath, files, title, stackSize, zSliceChoice, rang
 			}
 		}
 	}
-}
-//-------------------------------
-function idR(numChan, colors, CHN00, colorCHN00, CHN01, colorCHN01, CHN02, colorCHN02)
-{	
-	if (numChan == 1)
-	{	
-		Dialog.create("Channel IDs");
-		Dialog.addMessage("Please provide unique ID information for each channel that can be found in the filenames of the images you are processing.");
-		Dialog.addString("Channel 1 ID:", CHN00[0], 15);
-		Dialog.addChoice("Color of Channel 1:", colors);
-		Dialog.show();
-
-		CHN00[0] = Dialog.getString();
-		colorCHN00[0] = Dialog.getChoice();
-	}
-	if (numChan == 2)
-	{	
-		Dialog.create("Channel IDs");
-		Dialog.addMessage("Please provide unique ID information for each channel that can be found in the filenames of the images you are processing.");
-		Dialog.addString("Channel 1 ID:", CHN00[0], 15);
-		Dialog.addChoice("Color of Channel 1:", colors);
-		Dialog.addString("Channel 2 ID:", CHN01[0], 15);
-		Dialog.addChoice("Color of Channel 2:", colors);
-		Dialog.show();
-
-		CHN00[0] = Dialog.getString();
-		colorCHN00[0] = Dialog.getChoice();
-		CHN01[0] = Dialog.getString();
-		colorCHN01[0] = Dialog.getChoice();
-	}
-	if (numChan == 3)
-	{	
-		Dialog.create("Channel IDs");
-		Dialog.addMessage("Please provide unique ID information for each channel that can be found in the filenames of the images you are processing.");
-		Dialog.addString("Channel 1 ID:", CHN00[0], 15);
-		Dialog.addChoice("Color of Channel 1:", colors);
-		Dialog.addString("Channel 2 ID:", CHN01[0], 15);
-		Dialog.addChoice("Color of Channel 2:", colors);
-		Dialog.addString("Channel 3 ID:", CHN02[0], 15);
-		Dialog.addChoice("Color of Channel 3:", colors);
-		Dialog.show();
-
-		CHN00[0] = Dialog.getString();
-		colorCHN00[0] = Dialog.getChoice();
-		CHN01[0] = Dialog.getString();
-		colorCHN01[0] = Dialog.getChoice();
-		CHN02[0] = Dialog.getString();
-		colorCHN02[0] = Dialog.getChoice();
-	}
-	return CHN00[0], colorCHN00[0], CHN01[0], colorCHN01[0], CHN02[0], colorCHN02[0];
 }
 //-------------------------------
 function clippR(imageTitle, rangeStart, rangeEnd, takeFirst, zSliceChoice)
@@ -246,6 +209,7 @@ function projectR(imageTitle, savePath, numChan, takeFirst)
 	{
 		selectWindow(imageTitle);
 		run("Z Project...", "projection=[Max Intensity] all");
+		run("Despeckle");
 		rename(imageTitle + " - MAX");
 		selectWindow(imageTitle);
 		close();
@@ -254,6 +218,7 @@ function projectR(imageTitle, savePath, numChan, takeFirst)
 	{
 		selectWindow(imageTitle);
 		run("Z Project...", "start=[2] projection=[Max Intensity]");
+		run("Despeckle");
 		rename(imageTitle + " - MAX");
 		selectWindow(imageTitle);
 		close();
@@ -278,7 +243,6 @@ function mergR(numChan, channelNames, title, stackSize, numTPs, savePath, orient
 		open(savePath + channelNames[i] + ".tif");
 		rename("chan" + i);
 	}
-	
 	if (numChan == 2)
 	{	
 		run("Merge Channels...", "c1=chan1 c2=chan0 create");
@@ -300,7 +264,6 @@ function animatR(imageTitle, orientationChoice, savePath, numTPs, interval, numC
 	{
 		run("Make Composite");
 	}
-
 	if (orientationChoice == "Vertically")
 	{
 		run("Label...", "format=00:00 starting=0 interval=interval x=1300 y=20 font=60 text=Hours:Minutes range=1-numTPs"); //Generates timestamp
@@ -311,7 +274,6 @@ function animatR(imageTitle, orientationChoice, savePath, numTPs, interval, numC
 		Dialog.addMessage("Done!"); 
 		Dialog.show();
 	}
-
 	if (orientationChoice == "Horizontally")
 	{		
 		run("Label...", "format=00:00 starting=0 interval=interval x=5 y=0 font=60 text=Hours:Minutes range=1-numTPs"); //Generates timestamp
@@ -322,7 +284,6 @@ function animatR(imageTitle, orientationChoice, savePath, numTPs, interval, numC
 		Dialog.addMessage("Done!"); 
 		Dialog.show();
 	}
-
 	if (orientationChoice == "I'll Do This Myself Later")
 	{	
 		run("Animation Options...", "speed=frameRate");
