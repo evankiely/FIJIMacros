@@ -116,19 +116,16 @@ function automatR(numChan, openPath, files, title, stackSize, zSliceChoice, rang
 					{
 						open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 						rename(channelNames[i]);
-						if (zSliceChoice == "Yes")
-						{
-							clippR(channelNames[i], rangeStart, rangeEnd, takeFirst);
-						}
+						
+						clippR(channelNames[i], rangeStart, rangeEnd, takeFirst, zSliceChoice);
 					}
 					if (timePoint > i)
 					{
 						open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 						tempName = getTitle();
-						if (zSliceChoice == "Yes")
-						{
-							clippR(tempName, rangeStart, rangeEnd, takeFirst);
-						}
+
+						clippR(tempName, rangeStart, rangeEnd, takeFirst, zSliceChoice);
+						
 						run("Concatenate...", "open image1 =  channelNames[i] + image2 = tempName");
 						rename(channelNames[i]);
 					}
@@ -155,20 +152,17 @@ function automatR(numChan, openPath, files, title, stackSize, zSliceChoice, rang
 				{
 					open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 					rename(channelNames[0]);
-					if (zSliceChoice == "Yes")
-					{
-						clippR(channelNames[0], rangeStart, rangeEnd, takeFirst);
-					}
+
+					clippR(channelNames[0], rangeStart, rangeEnd, takeFirst, zSliceChoice);
 				}
 				
 				if (timePoint > 0)
 				{
 					open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 					tempName = getTitle();
-					if (zSliceChoice == "Yes")
-					{
-						clippR(tempName, rangeStart, rangeEnd, takeFirst);
-					}
+
+					clippR(tempName, rangeStart, rangeEnd, takeFirst, zSliceChoice);
+
 					run("Concatenate...", "open image1 = channelNames[0] image2 = tempName");
 					rename(channelNames[0]);
 				}
@@ -235,12 +229,14 @@ function idR(numChan, colors, CHN00, colorCHN00, CHN01, colorCHN01, CHN02, color
 	return CHN00[0], colorCHN00[0], CHN01[0], colorCHN01[0], CHN02[0], colorCHN02[0];
 }
 //-------------------------------
-function clippR(imageTitle, rangeStart, rangeEnd, takeFirst)
+function clippR(imageTitle, rangeStart, rangeEnd, takeFirst, zSliceChoice)
 {	
-	selectWindow(imageTitle);
-	run("Slice Remover", "first=rangeStart last=rangeEnd increment=1");
-	rename(imageTitle);
-
+	if (zSliceChoice == "Yes")
+	{
+		selectWindow(imageTitle);
+		run("Slice Remover", "first=rangeStart last=rangeEnd increment=1");
+		rename(imageTitle);
+	}
 	projectR(imageTitle, savePath, numChan, takeFirst);
 }
 //-------------------------------
