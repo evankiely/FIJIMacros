@@ -116,10 +116,6 @@ function automatR(numChan, openPath, files, title, stackSize, zSliceChoice, rang
 					{
 						open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 						rename(channelNames[i]);
-						if (takeFirst == "Yes")
-						{
-							skimmR(channelNames[i]);
-						}
 						if (zSliceChoice == "Yes")
 						{
 							clippR(channelNames[i], rangeStart, rangeEnd, takeFirst);
@@ -129,10 +125,6 @@ function automatR(numChan, openPath, files, title, stackSize, zSliceChoice, rang
 					{
 						open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 						tempName = getTitle();
-						if (takeFirst == "Yes")
-						{
-							skimmR(tempName);
-						}
 						if (zSliceChoice == "Yes")
 						{
 							clippR(tempName, rangeStart, rangeEnd, takeFirst);
@@ -163,10 +155,6 @@ function automatR(numChan, openPath, files, title, stackSize, zSliceChoice, rang
 				{
 					open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 					rename(channelNames[0]);
-					if (takeFirst == "Yes")
-					{
-						skimmR(channelNames[0]);
-					}
 					if (zSliceChoice == "Yes")
 					{
 						clippR(channelNames[0], rangeStart, rangeEnd, takeFirst);
@@ -177,10 +165,6 @@ function automatR(numChan, openPath, files, title, stackSize, zSliceChoice, rang
 				{
 					open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 					tempName = getTitle();
-					if (takeFirst == "Yes")
-					{
-						skimmR(tempName);
-					}
 					if (zSliceChoice == "Yes")
 					{
 						clippR(tempName, rangeStart, rangeEnd, takeFirst);
@@ -251,24 +235,33 @@ function idR(numChan, colors, CHN00, colorCHN00, CHN01, colorCHN01, CHN02, color
 	return CHN00[0], colorCHN00[0], CHN01[0], colorCHN01[0], CHN02[0], colorCHN02[0];
 }
 //-------------------------------
-function skimmR(imageTitle)
-{
-	selectWindow(imageTitle);
-	run("Slice Remover", "first=1 last=1 increment=1");
-	rename(imageTitle);
-}
-//-------------------------------
 function clippR(imageTitle, rangeStart, rangeEnd, takeFirst)
-{
-	if (takeFirst == "Yes")
-	{
-		rangeStart = rangeStart - 1;
-		rangeEnd = rangeEnd - 1;
-	}
-	
+{	
 	selectWindow(imageTitle);
 	run("Slice Remover", "first=rangeStart last=rangeEnd increment=1");
 	rename(imageTitle);
+
+	projectR(imageTitle, savePath, numChan, takeFirst);
+}
+//-------------------------------
+function projectR(imageTitle, savePath, numChan, takeFirst)
+{
+	if (takeFirst != "Yes")
+	{
+		selectWindow(imageTitle);
+		run("Z Project...", "projection=[Max Intensity] all");
+		rename(imageTitle + " - MAX");
+		selectWindow(imageTitle);
+		close();
+	}
+	if (takeFirst == "Yes")
+	{
+		selectWindow(imageTitle);
+		run("Z Project...", "start=[2] projection=[Max Intensity]");
+		rename(imageTitle + " - MAX");
+		selectWindow(imageTitle);
+		close();
+	}
 }
 //-------------------------------
 /*
@@ -302,24 +295,11 @@ function mergR(numChan, channelNames, title, stackSize, numTPs, savePath, orient
 		mergedName = title + " - Merged";
 		rename(mergedName);
 	}
-	hypRstackR(mergedName, numChan, stackSize, numTPs, savePath, orientationChoice, interval);
-}
-//-------------------------------
-function hypRstackR(mergedName, numChan, stackSize, numTPs, savePath, orientationChoice, interval)
-{
-	selectWindow(mergedName);
-	run("Stack to Hyperstack...", "order = xyczt(default) channels = " + numChan + " slices = " + stackSize + " frames = " + numTPs + " display = Color");
-	rename(mergedName);
-	saveAs("Tiff", savePath + mergedName);
-	imageTitle = mergedName + ".tif";
-			
-	animatR(imageTitle, orientationChoice, savePath, numTPs, interval, numChan);
+	animatR(mergedName, orientationChoice, savePath, numTPs, interval, numChan);
 }
 //--------------------------------
 function animatR(imageTitle, orientationChoice, savePath, numTPs, interval, numChan)
 {
-	projectR(imageTitle, savePath, numChan);
-
 	if (numChan > 1)
 	{
 		run("Make Composite");
@@ -356,17 +336,5 @@ function animatR(imageTitle, orientationChoice, savePath, numTPs, interval, numC
 		Dialog.addMessage("Done!"); 
 		Dialog.show();
 	}
-}
-//-------------------------------
-function projectR(imageTitle, savePath, numChan)
-{
-	selectWindow(imageTitle);
-	run("Z Project...", "projection=[Max Intensity] all");
-	rename(imageTitle + " - MAX");
-	selectWindow(imageTitle);
-	close();
-	
-	saveAs("Tiff", savePath + getTitle());
-	rename(imageTitle);
 }
 setBatchMode(false);
