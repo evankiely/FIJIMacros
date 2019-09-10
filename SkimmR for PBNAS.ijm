@@ -4,13 +4,15 @@ openPath = getDirectory("Choose Source Directory");
 files = getFileList(openPath);
 savePath = getDirectory("Choose Destination Directory");
 count = 1;
+greenID = "CHN00";
+redID = "CHN01";
 
 setBatchMode(true); //Allows the below to be performed behind the scenes.
 for (i = 0; i < (files.length); i=i+2) //Increments through files by two since there are two channels present and accounted for below
 {
 	tempName = files[i];
 
-	if (indexOf(tempName, "CHN00") >= 0) //Verifies we are operating on the appropriate channel first
+	if (indexOf(tempName, greenID) >= 0) //Verifies we are operating on the appropriate channel first
 	{
 		tempNameGreen = files[i] + " - Green";
 		open(openPath + files[i]); //Opens the file at index i
@@ -25,9 +27,10 @@ for (i = 0; i < (files.length); i=i+2) //Increments through files by two since t
 		rename(tempNameGreen + " - Max");
 		close(tempNameGreen);
 		rename(tempNameGreen);
-		
+	}
 //---------- For comments on below, see above
-
+	if (indexOf(tempName, redID) >= 0) //Verifies we are operating on the appropriate channel first
+	{
 		tempNameRed = files[i+1] + " - Red";
 		open(openPath + files[i+1]);
 		rename(tempNameRed);
@@ -41,6 +44,7 @@ for (i = 0; i < (files.length); i=i+2) //Increments through files by two since t
 		rename(tempNameRed + " - Max");
 		close(tempNameRed);
 		rename(tempNameRed);
+	}
 //----------
 		run("Merge Channels...", "c1=["+tempNameGreen+"] c2=["+tempNameRed+"] create"); //Merges two resulting max projections
 		mergedName = "Merged " + count;
@@ -49,6 +53,5 @@ for (i = 0; i < (files.length); i=i+2) //Increments through files by two since t
 		run("Close All");
 
 		count++;
-	}
 }
 setBatchMode(false);
