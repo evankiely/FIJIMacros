@@ -1,10 +1,13 @@
-//Welcome to AutomatR: A Batch Processing Wizard for FIJI! v0.1
+//Welcome to AutomatR: A Batch Processing Wizard for FIJI! v0.2
 
 /* To Do:
- *  Min and Max for Channel Values?
- *  Make User Input More Eficient in General; Figure Out How Much/Which User Provided Values can be Reused/Repurposed or Discarded
- *  	For Example: No Need for Number of Timepoints if the Provided Folder is Free of Misc. Files
- *  	(Channel IDs can Even be Employed to Count Specific Files) -- numTPs = len(files)/numChan
+ *  Add descriptions of function - comment everything as necessary
+ *  Min and Max for Channel Values <--- Added but makes the UI/UX clunky
+ *  	Review dialog box creation to try and simplify/beautify input process
+ *  Add ability to save at any point if desired <--- Current plan is to implement by providing at any point something meaningful/potentially
+ *  	valuable is done to the image, but leave it commented out until a user desires, mainly due to UI/UX headaches associated with that
+ *  Add save as gray option for single channel stacks
+ *  Add label/timestamp by ROI
  *  Anywhere Things Could be More Efficient
  *  Add Flexibility and Improve Modularity
  *  Eventually: How to go from Macro to PlugIn?
@@ -31,87 +34,100 @@ savePath = getDirectory("Choose Destination Directory"); //Allows user to select
 text that give the user an idea of what is expected in those fields/what those fields are for*/
 
 title = "Project";
-redID = ""; greenID = ""; blueID = "";
-numTPs = 0; stackSize = 0;
 interval = 1;
 fontSize = 60;
 zSlice = newArray("Yes", "No");
+rangeStart = 0; rangeEnd = 0;
 takeFirst = ""
-zSliceChoice = "";
-orientation = newArray("Horizontally", "I'll Do This Myself Later", "Vertically");
+orientation = newArray("Horizontally", "I'll Do This Later", "Vertically");
 frameRate = 0;
 orientationChoice = "";
+redID = ""; greenID = ""; blueID = "";
+//minValR = 0
+//maxValR = 0
+//minValG = 0
+//maxValG = 0
+//minValB = 0
+//maxValB = 0
+colorBlind = "";
 
 //Here we create our user interface/info gathering dialog box
 
 Dialog.create("AutomatR"); //Creates dialog box
-Dialog.addMessage("Please provide the following information."); //Adds message text
-Dialog.addMessage("Leave Channel ID Blank if Unused.");
-Dialog.addString("Red Channel ID:", redID, 15);
-Dialog.addString("Green Channel ID:", greenID, 15);
-Dialog.addString("Blue Channel ID:", blueID, 15);
+Dialog.addMessage("Please Provide the Following Information.\n\nBe Sure to Leave Blank Fields Blank if Unused."); //Adds message text
 Dialog.addString("Title:", title, 15); //Input for title, which later becomes file name
-Dialog.addNumber("Number of Time Points:", 2, 0, 15, "");
-Dialog.addNumber("Z Frames per Timepoint:", 105, 0, 15, "");
-Dialog.addNumber("Time Between Acquisitions (Minutes):", 1, 0, 15, "");
-//Dialog.addNumber("Font Size for Timestamp:", 60, 0, 15, "");
-Dialog.addChoice("I Would Like to Remove the First Frame of Every Z:", zSlice);
-Dialog.addChoice("I Would Like to Clip My Z-Stack:", zSlice);
-Dialog.addNumber("The Frame Rate for My Animation Should Be:", 7, 0, 15, "");
-Dialog.addChoice("For Timestamping: My Images are Oriented", orientation);
+Dialog.addNumber("Time Between Acquisitions:", 1, 0, 3, "Minute(s)");
+Dialog.addChoice("Remove the First Frame of Every Z:", zSlice);
+Dialog.addNumber("Clip Z Stack Starting at Frame:", 0, 0, 3, "");
+Dialog.addNumber("Clip Until Frame:", 0, 0, 3, "");
+Dialog.addNumber("Frame Rate:", 7, 0, 3, "FPS");
+Dialog.addChoice("For Timestamping: Images are Oriented", orientation);
+Dialog.addString("Red Channel ID:", redID, 10);
+Dialog.addString("Green Channel ID:", greenID, 10);
+Dialog.addString("Blue Channel ID:", blueID, 10);
+Dialog.addChoice("Activate Colorblind Accomodation:" zSlice);
+//Dialog.addNumber("Min Brightness Red:", 0, 0, 5, "0");
+//Dialog.addNumber("Max Brightness Red:", 0, 0, 5, "256");
+//Dialog.addNumber("Min Brightness Green:", 0, 0, 5, "0");
+//Dialog.addNumber("Max Brightness Green:", 0, 0, 5, "256");
+//Dialog.addNumber("Min Brightness Blue:", 0, 0, 5, "0");
+//Dialog.addNumber("Max Brightness Blue:", 0, 0, 5, "256");
+Dialog.addMessage("(Green -> Cyan, Red -> Magenta, Blue -> Yellow)");
 Dialog.show(); //This opens the dialog box we created
 
 //Below gathers user input from above dialog box and reassigns the relevant variables such that they now carry those values
 
+title = Dialog.getString();
+interval = Dialog.getNumber();
+takeFirst = Dialog.getChoice();
+rangeStart = Dialog.getNumber();
+rangeEnd = Dialog.getNumber();
+frameRate = Dialog.getNumber();
+orientationChoice = Dialog.getChoice();
 redID = Dialog.getString();
 greenID = Dialog.getString();
 blueID = Dialog.getString();
-title = Dialog.getString();
-numTPs = Dialog.getNumber();
-stackSize = Dialog.getNumber();
-interval = Dialog.getNumber();
-//fontSize = Dialog.getNumber();
-zSliceChoice = Dialog.getChoice();
-takeFirst = Dialog.getChoice();
-frameRate = Dialog.getNumber();
-orientationChoice = Dialog.getChoice();
-
-rangeStart = 0; rangeEnd = 0;
-
-if (zSliceChoice == "Yes")
-{
-	Dialog.create("Clipping Range");
-	Dialog.addNumber("Start Range At Frame:", 61, 0, 15, "");
-	Dialog.addNumber("End Range At Frame:", 105, 0, 15, "");
-	Dialog.show();
-
-	rangeStart = Dialog.getNumber();
-	rangeEnd = Dialog.getNumber();
-}
+//minValR = Dialog.getNumber();
+//maxValR = Dialog.getNumber();
+//minValG = Dialog.getNumber();
+//maxValG = Dialog.getNumber();
+//minValB = Dialog.getNumber();
+//maxValB = Dialog.getNumber();
+colorBlind = Dialog.getChoice();
 
 setBatchMode(true);
-automatR(openPath, files, title, stackSize, zSliceChoice, rangeStart, rangeEnd, orientationChoice, savePath, numTPs, interval, takeFirst);
+automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoice, savePath, interval, takeFirst, colorBlind);
 //Function Call Above, Function Creation Below <----------------------
-function automatR(openPath, files, title, stackSize, zSliceChoice, rangeStart, rangeEnd, orientationChoice, savePath, numTPs, interval, takeFirst)
+function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoice, savePath, interval, takeFirst, colorBlind)
 {
-	numChan = 0;
 	channelIDs = newArray(redID, greenID, blueID);
-	for (j = 0; j < 3; j++)
+	if(colorBlind == "No")
 	{
-		if (lengthOf(channelIDs[j]) > 0)
+		channelColors = newArray("Red", "Green", "Blue");
+		redChan = title + " - Red";
+		greenChan = title + " - Green";
+		blueChan = title + " - Blue";
+	}
+		if(colorBlind == "Yes")
+	{
+		channelColors = newArray("Magenta", "Cyan", "Yellow");
+		redChan = title + " - Magenta";
+		greenChan = title + " - Cyan";
+		blueChan = title + " - Yellow";
+	}
+	
+	channelNames = newArray(redChan, greenChan, blueChan);
+	numChan = 0;
+	
+	for (i = 0; i < 3; i++)
+	{
+		if (lengthOf(channelIDs[i]) > 0)
 		{
+			onlyColor = channelColors[i];
+			onlyChan = channelIDs[i];
 			numChan++;
 		}
 	}
-	
-	channelColors = newArray("Red", "Green", "Blue");
-	
-	redChan = title + " - Red";
-	greenChan = title + " - Green";
-	blueChan = title + " - Blue";
-	
-	channelNames = newArray(redChan, greenChan, blueChan);
-
 	if (numChan > 1)
 	{
 		for (i = 0; i < numChan; i++) //Allows this macro to expand to a huge number of comingled channels
@@ -126,7 +142,7 @@ function automatR(openPath, files, title, stackSize, zSliceChoice, rangeStart, r
 						open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 						tempName = getTitle();
 
-						clippR(tempName, rangeStart, rangeEnd, takeFirst, zSliceChoice);
+						clippR(tempName, rangeStart, rangeEnd, takeFirst);
 						
 						run("Concatenate...", "open image1 =  channelNames[i] + image2 = tempName");
 						rename(channelNames[i]);
@@ -136,7 +152,7 @@ function automatR(openPath, files, title, stackSize, zSliceChoice, rangeStart, r
 						open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 						rename(channelNames[i]);
 						
-						clippR(channelNames[i], rangeStart, rangeEnd, takeFirst, zSliceChoice);
+						clippR(channelNames[i], rangeStart, rangeEnd, takeFirst);
 						
 						numberOpened++;
 					}
@@ -150,79 +166,84 @@ function automatR(openPath, files, title, stackSize, zSliceChoice, rangeStart, r
 			}
 			if (i == (numChan - 1))
 			{
-				 mergR(numChan, channelNames, title, stackSize, numTPs, savePath, orientationChoice, interval);
+				mergR(numChan, channelNames, title, savePath, orientationChoice, interval);
 			}
 		}
 	}
 	if (numChan == 1)
 	{
+		title = title + " - Processed";
+		numberOpened = 0;
 		for (timePoint = 0; timePoint < files.length; timePoint++)
 		{
-			numberOpened = 0;
-			if (indexOf(files[timePoint], channelIDs[0]) >= 0)
+			if (indexOf(files[timePoint], onlyChan) >= 0)
 			{
 				if (numberOpened > 0)
 				{
 					open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 					tempName = getTitle();
 
-					clippR(tempName, rangeStart, rangeEnd, takeFirst, zSliceChoice);
+					clippR(tempName, rangeStart, rangeEnd, takeFirst);
 
-					run("Concatenate...", "open image1 = channelNames[0] image2 = tempName");
-					rename(channelNames[0]);
+					run("Concatenate...", "open image1 = title image2 = tempName");
+					rename(title);
 				}
 				if (numberOpened == 0)
 				{
 					open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
-					rename(channelNames[0]);
+					rename(title);
 					
-					clippR(channelNames[0], rangeStart, rangeEnd, takeFirst, zSliceChoice);
+					clippR(title, rangeStart, rangeEnd, takeFirst);
 
 					numberOpened++;
 				}
-				if (timePoint == (files.length - 1))
-				{
-					run(colorCHN00[0]);
-					imageTitle = "HyperStacked";
-					saveAs("Tif", savePath + imageTitle);
-					animatR(imageTitle + ".tif", orientationChoice, savePath, numTPs, interval, numChan);
-				}
+			}
+			if (timePoint == (files.length - 1))
+			{
+				run(onlyColor);
+				saveAs("Tif", savePath + title);
+				rename(title);
+				animatR(title, orientationChoice, savePath, interval, numChan);
 			}
 		}
 	}
 }
 //-------------------------------
-function clippR(imageTitle, rangeStart, rangeEnd, takeFirst, zSliceChoice)
+function clippR(imageTitle, rangeStart, rangeEnd, takeFirst)
 {	
-	if (zSliceChoice == "Yes")
+	selectWindow(imageTitle);
+	if (rangeStart > 0 && rangeEnd > 0)
 	{
-		selectWindow(imageTitle);
 		run("Slice Remover", "first=rangeStart last=rangeEnd increment=1");
-		rename(imageTitle);
 	}
+	if (rangeStart == 0 && rangeEnd > 0)
+	{
+		run("Slice Remover", "first=1 last=rangeEnd increment=1");
+	}
+	if (rangeStart > 0 && rangeEnd == 0)
+	{
+		run("Slice Remover", "first=rangeStart last=" + nSlices + " increment=1");
+	}
+	rename(imageTitle);
+	
 	projectR(imageTitle, savePath, numChan, takeFirst);
 }
 //-------------------------------
 function projectR(imageTitle, savePath, numChan, takeFirst)
 {
+	selectWindow(imageTitle);
 	if (takeFirst != "Yes")
 	{
-		selectWindow(imageTitle);
 		run("Z Project...", "projection=[Max Intensity] all");
-		run("Despeckle");
-		rename(imageTitle + " - MAX");
-		selectWindow(imageTitle);
-		close();
 	}
 	if (takeFirst == "Yes")
 	{
-		selectWindow(imageTitle);
-		run("Z Project...", "start=[2] projection=[Max Intensity]");
-		run("Despeckle");
-		rename(imageTitle + " - MAX");
-		selectWindow(imageTitle);
-		close();
+		run("Z Project...", "start=[2] projection=[Max Intensity]");		
 	}
+	run("Despeckle");
+	rename(imageTitle + " - MAX");
+	selectWindow(imageTitle);
+	close();
 }
 //-------------------------------
 /*
@@ -236,7 +257,7 @@ function AdjustR(imageTitle)  <---- Eventually, user input dictates min and max 
 }
 */
 //-------------------------------
-function mergR(numChan, channelNames, title, stackSize, numTPs, savePath, orientationChoice, interval)
+function mergR(numChan, channelNames, title, savePath, orientationChoice, interval)
 {
 	for (i = 0; i < numChan; i++)
 	{
@@ -246,20 +267,22 @@ function mergR(numChan, channelNames, title, stackSize, numTPs, savePath, orient
 	if (numChan == 2)
 	{	
 		run("Merge Channels...", "c1=chan1 c2=chan0 create");
-		mergedName = title + " - Merged";
-		rename(mergedName);
 	}
 	if (numChan == 3)
 	{	
 		run("Merge Channels...", "c1=chan1 c2=chan0 c3=chan3 create");
-		mergedName = title + " - Merged";
-		rename(mergedName);
 	}
-	animatR(mergedName, orientationChoice, savePath, numTPs, interval, numChan);
+
+	mergedName = title + " - Merged";
+	rename(mergedName);
+	
+	animatR(mergedName, orientationChoice, savePath, interval, numChan);
 }
 //--------------------------------
-function animatR(imageTitle, orientationChoice, savePath, numTPs, interval, numChan)
+function animatR(imageTitle, orientationChoice, savePath, interval, numChan)
 {
+	numTPs = nSlices/numChan;
+
 	if (numChan > 1)
 	{
 		run("Make Composite");
@@ -268,30 +291,20 @@ function animatR(imageTitle, orientationChoice, savePath, numTPs, interval, numC
 	{
 		run("Label...", "format=00:00 starting=0 interval=interval x=1300 y=20 font=60 text=Hours:Minutes range=1-numTPs"); //Generates timestamp
 		run("Animation Options...", "speed=frameRate");
-		saveAs("avi", savePath + imageTitle); //Saves stack as an Avi, thus creating a movie where each image is a single frame
-		close(); //Closes the stack
-		Dialog.create("End Message"); 
-		Dialog.addMessage("Done!"); 
-		Dialog.show();
 	}
 	if (orientationChoice == "Horizontally")
 	{		
 		run("Label...", "format=00:00 starting=0 interval=interval x=5 y=0 font=60 text=Hours:Minutes range=1-numTPs"); //Generates timestamp
 		run("Animation Options...", "speed=frameRate");
-		saveAs("avi", savePath + imageTitle); //Saves stack as an Avi, thus creating a movie where each image is a single frame
-		close(); //Closes the stack
-		Dialog.create("End Message"); 
-		Dialog.addMessage("Done!"); 
-		Dialog.show();
 	}
-	if (orientationChoice == "I'll Do This Myself Later")
+	if (orientationChoice == "I'll Do This Later")
 	{	
 		run("Animation Options...", "speed=frameRate");
-		saveAs("avi", savePath + imageTitle); //Saves stack as an Avi, thus creating a movie where each image is a single frame
-		close(); //Closes the stack
-		Dialog.create("End Message"); 
-		Dialog.addMessage("Done!"); 
-		Dialog.show();
 	}
+	saveAs("avi", savePath + imageTitle); //Saves stack as an Avi, thus creating a movie where each image is a single frame
+	close(); //Closes the stack
+	Dialog.create("End Message"); 
+	Dialog.addMessage("Done!"); 
+	Dialog.show();
 }
 setBatchMode(false);
