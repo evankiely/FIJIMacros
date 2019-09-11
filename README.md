@@ -4,9 +4,10 @@ Macros for FIJI in the FIJI Macro Language
 This is an assortment of macros I have written to help automate processing of 5 dimensional (i.e. XYZ, time, & color) image data sets generated on various microscopes. They are typically limited to a small set of functions, defined more clearly in the code itself. 
 
 The macros on tap today are:
- - AutomatR v0.1: A very early attempt at a wizard for the particular kind of processing my lab encounters daily.
-   - Can: Remove Specified range of Zs, Skim first Z via max projection, Concatenate max projections over time based on user provided channel ID, and Merge disparate channels.
-   - Output: Each channel stacked over time as max projections (i.e. two channels = two stacks) and a timestamped AVI of those stacks merged.
+ - AutomatR v0.2: An attempt at a wizard for the particular kind of processing my lab encounters daily.
+   - Function: Remove Specified range of Zs, Skim first Z via max projection, Despeckle, Concatenate max projections, and Merge disparate channels.
+   - Output: Each channel as single stack of max projections (i.e. two channels = two stacks) and a timestamped AVI of those stacks merged.
+   - Special Features: Output can be toggled to be color blind friendly (on by default), such that Red -> Magenta, Green -> Cyan, and Blue -> Yellow. Accepts any folder, including those with other items, so long as the provided channel ID is legitimately unique (thus, can also output to input folder without issue). Z stack clipping range is flexible such that leaving the start and end as 0 skips it entirely, start > 0 but end == 0 clips from specified start frame to the last frame in the stack, and the opposite is true of start == 0 but end > 0. Additionally, the macro interprets a blank channel ID as absence of that channel in your image set.
    
  - SkimmR:
     - Function: Remove the first Z from a stack via max projection, Assign channel, Repeat for the next color, Merge channels
