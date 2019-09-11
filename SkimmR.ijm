@@ -1,5 +1,7 @@
 //SkimmR: Skim the Top Slice Off of a Batch of Z-Stacks by Max Projecting Everything Below
 
+//If used in the course of reseach culminating in a publication, an acknowledgement and citation would be appreciated.
+
 openPath = getDirectory("Choose Source Directory");
 files = getFileList(openPath);
 savePath = getDirectory("Choose Destination Directory");
