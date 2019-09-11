@@ -1,7 +1,7 @@
 # FIJIMacros
 Macros for FIJI in the FIJI Macro Language
 
-This is an assortment of macros I have written to help automate processing of 5 dimensional (i.e. XYZ, time, & color) image data sets generated on various microscopes. They are typically limited to a small set of functions, defined more clearly in the code itself. 
+This is an assortment of macros I have written to help automate processing of 5 dimensional (i.e. XYZ, time, & color) image data sets generated on various microscopes. They are typically limited to a small set of functions, defined more clearly in the code itself. As these are written for my lab originally, an acknowledgement and citation would be appreciated if used in the course of research culminating in a publication.
 
 The macros on tap today are:
  - AutomatR v0.2: An attempt at a wizard for the particular kind of processing my lab encounters daily.
