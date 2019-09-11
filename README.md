@@ -9,7 +9,7 @@ The macros on tap today are:
    - Output: Each channel stacked over time as max projections (i.e. two channels = two stacks) and a timestamped AVI of those stacks merged.
    
  - SkimmR:
-    - Function: Remove the first Z from a stack via max project, Assign channel, Repeat for the next color, Merge channels
+    - Function: Remove the first Z from a stack via max projection, Assign channel, Repeat for the next color, Merge channels
     - Output: A series of merged max projections saved as TIFs. (one per time point; can be concatenated with minimal effort by going File -> Import -> Image Sequence and selecting the output folder).
  
  And our special is a lovely Chilean Sea Bass.
