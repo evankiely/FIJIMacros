@@ -1,4 +1,4 @@
-//Welcome to Automator: A Batch Processing Wizard for FIJI! v0.2
+//Welcome to Automator: A Batch Processing Wizard for FIJI! v0.2.1
 
 /* To Do:
  *  Change clipping range to Zs to retain -- allows for further flexibility in that a user can do anything they can now plus remove around a range somewhere in the middle too
