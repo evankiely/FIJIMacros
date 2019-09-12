@@ -1,4 +1,4 @@
-//Welcome to AutomatR: A Batch Processing Wizard for FIJI! v0.2
+//Welcome to Automator: A Batch Processing Wizard for FIJI! v0.2
 
 //If used in the course of reseach culminating in a publication, an acknowledgement and citation would be appreciated.
 
