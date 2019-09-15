@@ -1,4 +1,4 @@
-//Welcome to Automator: A Batch Processing Wizard for FIJI! v0.2.1
+//Welcome to Automator: A Batch Processing Wizard for FIJI! v0.2.2
 
 /* To Do:
  *  Eventually, add option for first image to be opened to user view such that they can provide macro input via action (essentially like an automated macro recorder)
