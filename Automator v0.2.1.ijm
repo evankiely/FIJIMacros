@@ -1,7 +1,6 @@
 //Welcome to Automator: A Batch Processing Wizard for FIJI! v0.2.1
 
 /* To Do:
- *  Change clipping range to Zs to retain -- allows for further flexibility in that a user can do anything they can now plus remove around a range somewhere in the middle too
  *  Eventually, add option for first image to be opened to user view such that they can provide macro input via action (essentially like an automated macro recorder)
  *  Add descriptions of function - comment everything as necessary
  *  Add user definable timestamping location; label/timestamp by ROI? (see roiManagerMacros, ROI Manager Stack Demo and RoiManagerSpeedTestmacros)
@@ -19,7 +18,6 @@ title = "Project";
 fontSize = 60;
 zSlice = newArray("Yes", "No");
 rangeStart = 0; rangeEnd = 0;
-takeFirst = ""
 orientation = newArray("Horizontally", "I'll Do This Later", "Vertically");
 orientationChoice = "";
 interval = 1;
@@ -38,9 +36,8 @@ colorBlind = "";
 Dialog.create("Automator"); //Creates dialog box
 Dialog.addMessage("Please Provide the Following Information.\n\nBe Sure to Leave Blank Fields Blank if Unused."); //Adds message text
 Dialog.addString("Title:", title, 15); //Input for title, which later becomes file name
-Dialog.addChoice("Remove the First Frame of Every Z:", zSlice);
-Dialog.addNumber("Clip Z Stack Starting at Frame:", 0, 0, 3, "");
-Dialog.addNumber("Clip Until Frame:", 0, 0, 3, "");
+Dialog.addNumber("Max Project Starts at Frame:", 0, 0, 3, "");
+Dialog.addNumber("Max Project Ends at Frame:", 0, 0, 3, "");
 Dialog.addChoice("For Timestamping: Images are Oriented", orientation);
 Dialog.addNumber("Time Between Acquisitions:", 1, 0, 3, "Minute(s)");
 Dialog.addNumber("Frame Rate:", 7, 0, 3, "FPS");
@@ -66,7 +63,6 @@ Dialog.show(); //This opens the dialog box we created
 //Below gathers user input from above dialog box and reassigns the relevant variables such that they now carry those values
 
 title = Dialog.getString();
-takeFirst = Dialog.getChoice();
 rangeStart = Dialog.getNumber();
 rangeEnd = Dialog.getNumber();
 orientationChoice = Dialog.getChoice();
@@ -97,9 +93,12 @@ File.makeDirectory(openPath + "Processed");
 savePath = openPath + "Processed" + File.separator;
 
 setBatchMode(true);
-automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoice, savePath, interval, takeFirst, colorBlind, despeckle);
+automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoice, savePath, interval, colorBlind, despeckle);
+setBatchMode(false);
+
 //Function Call Above, Function Creation Below <----------------------
-function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoice, savePath, interval, takeFirst, colorBlind, despeckle)
+
+function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoice, savePath, interval, colorBlind, despeckle)
 {
 	channelIDs = newArray(redID, greenID, blueID);
 	if(colorBlind == "No")
@@ -143,7 +142,7 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 						open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 						rename(channelNames[i]);
 						
-						clippR(channelNames[i], rangeStart, rangeEnd, takeFirst, despeckle);
+						projectR(channelNames[i], rangeStart, rangeEnd, despeckle);
 
 						numberOpened++;	
 					}
@@ -152,7 +151,7 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 						open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 						tempName = getTitle();
 
-						clippR(tempName, rangeStart, rangeEnd, takeFirst, despeckle);
+						projectR(tempName, rangeStart, rangeEnd, despeckle);
 
 						run("Concatenate...", "open image1 = channelNames[i] image2 = tempName");
 						rename(channelNames[i]);
@@ -189,7 +188,7 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 					open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 					rename(title);
 					
-					clippR(title, rangeStart, rangeEnd, takeFirst, despeckle);
+					projectR(title, rangeStart, rangeEnd, despeckle);
 
 					numberOpened++;
 				}
@@ -198,7 +197,7 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 					open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 					tempName = getTitle();
 
-					clippR(tempName, rangeStart, rangeEnd, takeFirst, despeckle);
+					projectR(tempName, rangeStart, rangeEnd, despeckle);
 
 					run("Concatenate...", "open image1 = title image2 = tempName");
 					rename(title);
@@ -217,48 +216,40 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 	}
 }
 //-------------------------------
-function clippR(imageTitle, rangeStart, rangeEnd, takeFirst, despeckle)
+function projectR(imageTitle, rangeStart, rangeEnd, despeckle)
 {	
 	selectWindow(imageTitle);
-	if (rangeStart > 0 && rangeEnd > 0)
+	if (rangeStart == 0 && rangeEnd == 0)
 	{
-		run("Slice Remover", "first=rangeStart last=rangeEnd increment=1");
+		run("Z Project...", "projection=[Max Intensity] all");
+	}
+	else if (rangeStart > 0 && rangeEnd > 0)
+	{
+		run("Z Project...", "projection=[Max Intensity] start=rangeStart stop=rangeEnd");
 	}
 	else if (rangeStart == 0 && rangeEnd > 0)
 	{
-		run("Slice Remover", "first=1 last=rangeEnd increment=1");
+		run("Z Project...", "projection=[Max Intensity] start=1 stop=rangeEnd");
 	}
 	else if (rangeStart > 0 && rangeEnd == 0)
 	{
-		run("Slice Remover", "first=rangeStart last=" + nSlices + " increment=1");
+		run("Z Project...", "projection=[Max Intensity] start=rangeStart stop= nSlices");
 	}
+	
+	if (despeckle == true)
+	{
+		run("Despeckle");
+	}
+	
+	rename(imageTitle + " - MAX");
+	selectWindow(imageTitle);
+	close();
 	rename(imageTitle);
 
 	/*File.makeDirectory(savePath + "Clipped");
 	savePathClipped = savePath + "Clipped" + File.separator;
 	saveAs("Tiff", savePathClipped + imageTitle + timePoint); //<------------------- Uncomment here to save every timepoint after clipping (issue with naming convention)
 	rename(imageTitle);*/
-	projectR(imageTitle, savePath, numChan, takeFirst, despeckle);
-}
-//-------------------------------
-function projectR(imageTitle, savePath, numChan, takeFirst, despeckle)
-{
-	selectWindow(imageTitle);
-	if (takeFirst != "Yes")
-	{
-		run("Z Project...", "projection=[Max Intensity] all");
-	}
-	else if (takeFirst == "Yes")
-	{
-		run("Z Project...", "start=[2] projection=[Max Intensity]");		
-	}
-	if (despeckle == true)
-	{
-		run("Despeckle");
-	}
-	rename(imageTitle + " - MAX");
-	selectWindow(imageTitle);
-	close();
 }
 //-------------------------------
 /*
@@ -335,4 +326,3 @@ function animatR(imageTitle, orientationChoice, savePath, interval, numChan)
 	Dialog.addMessage("Done!"); 
 	Dialog.show();
 }
-setBatchMode(false);
