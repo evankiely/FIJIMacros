@@ -1,12 +1,15 @@
 //Welcome to Automator: A Batch Processing Wizard for FIJI! v0.2.2
 
 /* To Do:
+ *  Update to assume intent if field left blank and/or throw error if missing value(s) are critical
  *  Eventually, add option for first image to be opened to user view such that they can provide macro input via action (essentially like an automated macro recorder)
+ *  	Idea is that user would be able to do operations on a given image, the macro would pull those values, then apply them to a folder of interest
  *  Add descriptions of function - comment everything as necessary
  *  Add user definable timestamping location; label/timestamp by ROI? (see roiManagerMacros, ROI Manager Stack Demo and RoiManagerSpeedTestmacros)
  *  User Input for Save as AVI
  *  	Compression? <- Weird Issue with Prompt to Save When Adding Frame Rate and Compression to saveAs Command
  *  	Verify that Frame Rate Changes by Input Value
+ *  UI/UX issues with Min/Max color values & save anywhere... Commented out code is cluttering
  */
 
 //User Input Starts Here <----------------------
@@ -40,7 +43,7 @@ Dialog.addNumber("Max Project Starts at Frame:", 0, 0, 3, "");
 Dialog.addNumber("Max Project Ends at Frame:", 0, 0, 3, "");
 Dialog.addChoice("For Timestamping: Images are Oriented", orientation);
 Dialog.addNumber("Time Between Acquisitions:", 1, 0, 3, "Minute(s)");
-Dialog.addNumber("Frame Rate:", 7, 0, 3, "FPS");
+Dialog.addNumber("Frame Rate:", 0, 0, 3, "FPS");
 Dialog.addString("Red Channel ID:", redID, 10);
 //Dialog.setInsets(0, -150, 0)
 //Dialog.addNumber("Min Brightness Red:", 0, 0, 3, "0");
@@ -89,8 +92,13 @@ Dialog.show();
 openPath = getDirectory("Choose Source Directory"); //Allows user to select folder of interest and assigns it to variable "openPath"
 files = getFileList(openPath)
 
-File.makeDirectory(openPath + "Processed");
-savePath = openPath + "Processed" + File.separator;
+if(files.length == 0)
+{
+	exit("Input directory must contain files.");
+}
+
+File.makeDirectory(openPath + "Processed - Automator");
+savePath = openPath + "Processed - Automator" + File.separator;
 
 setBatchMode(true);
 automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoice, savePath, interval, colorBlind, despeckle);
@@ -127,6 +135,10 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 			onlyChan = channelIDs[i];
 			numChan++;
 		}
+	}
+	if (numChan == 0)
+	{
+		exit("Must provide at least 1 channel ID.");
 	}
 	if (numChan > 1)
 	{
@@ -210,7 +222,10 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 				run(onlyColor);
 				saveAs("Tif", savePath + title);
 				rename(title);
-				animatR(title, orientationChoice, savePath, interval, numChan);
+				if (interval > 0)
+				{
+					animatR(title, orientationChoice, savePath, interval, numChan);
+				}
 			}
 		}
 	}
@@ -294,8 +309,11 @@ function mergR(numChan, channelNames, title, savePath, orientationChoice, interv
 	rename(mergedName);
 
 	//saveAs("Tiff", savePath + mergedName); //<------------------- Uncomment here to save merged max project of all timepoints concatenated (WORKS)
-	
-	animatR(mergedName, orientationChoice, savePath, interval, numChan);
+
+	if (interval > 0)
+	{
+		animatR(mergedName, orientationChoice, savePath, interval, numChan);
+	}
 }
 //--------------------------------
 function animatR(imageTitle, orientationChoice, savePath, interval, numChan)
