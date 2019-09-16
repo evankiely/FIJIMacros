@@ -37,7 +37,7 @@ colorBlind = "";
 //Here we create our user interface/info gathering dialog box
 
 Dialog.create("Automator"); //Creates dialog box
-Dialog.addMessage("Please Provide the Following Information.\n\nBe Sure to Leave Blank Fields Blank if Unused."); //Adds message text
+Dialog.addMessage("Please Provide the Following Information, and Be Sure\n\nto Leave Blank/Zero Fields Blank/Zero if Not Required."); //Adds message text
 Dialog.addString("Title:", title, 15); //Input for title, which later becomes file name
 Dialog.addNumber("Max Project Starts at Frame:", 0, 0, 3, "");
 Dialog.addNumber("Max Project Ends at Frame:", 0, 0, 3, "");
@@ -58,7 +58,9 @@ Dialog.addString("Blue Channel ID:", blueID, 10);
 //Dialog.addToSameRow();
 //Dialog.addNumber("Max Brightness Blue:", 0, 0, 3, "256");
 Dialog.setInsets(0, 250, 0)
-Dialog.addCheckbox("Despeckle", true)
+Dialog.addCheckbox("Despeckle", false)
+Dialog.setInsets(0, 250, 0)
+Dialog.addCheckbox("Save in a Different Location", false);
 Dialog.addChoice("Activate Colorblind Accomodation:" zSlice);
 Dialog.addMessage("(Green -> Cyan, Red -> Magenta, Blue -> Yellow)");
 Dialog.show(); //This opens the dialog box we created
@@ -81,6 +83,7 @@ blueID = Dialog.getString();
 //minValB = Dialog.getNumber();
 //maxValB = Dialog.getNumber();
 despeckle = Dialog.getCheckbox();
+saveChoice = Dialog.getCheckbox();
 colorBlind = Dialog.getChoice();
 
 //minMax = newArray(minValR, maxValR, minValG, maxValG, minValB, maxValB);
@@ -97,8 +100,21 @@ if(files.length == 0)
 	exit("Input directory must contain files.");
 }
 
-File.makeDirectory(openPath + "Processed - Automator");
-savePath = openPath + "Processed - Automator" + File.separator;
+if(saveChoice == false)
+{
+	File.makeDirectory(openPath + "Processed - Automator");
+	savePath = openPath + "Processed - Automator" + File.separator;
+}
+else if(saveChoice == true)
+{
+	Dialog.create("Save Path");
+	Dialog.addMessage("Please select save location.");
+	Dialog.show();
+	
+	savePath = getDirectory("Choose Save Location");
+	File.makeDirectory(savePath + "Processed - Automator");
+	savePath = savePath + "Processed - Automator" + File.separator;
+}
 
 setBatchMode(true);
 automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoice, savePath, interval, colorBlind, despeckle);
@@ -267,7 +283,7 @@ function projectR(imageTitle, rangeStart, rangeEnd, despeckle)
 	rename(imageTitle);*/
 }
 //-------------------------------
-/*
+/* <------------------------------------------------------- adjustR on hold for time being
 function adjustR(imageTitle, minMax, i)
 {
 	print(i);
@@ -313,6 +329,13 @@ function mergR(numChan, channelNames, title, savePath, orientationChoice, interv
 	if (interval > 0)
 	{
 		animatR(mergedName, orientationChoice, savePath, interval, numChan);
+	}
+	if (interval == 0)
+	{
+		run("Close All")
+		Dialog.create("End Message"); 
+		Dialog.addMessage("Done!"); 
+		Dialog.show();
 	}
 }
 //--------------------------------
