@@ -248,7 +248,7 @@ function projectR(imageTitle, rangeStart, rangeEnd, despeckle)
 	}
 	else if (rangeStart > 0 && rangeEnd == 0)
 	{
-		run("Z Project...", "projection=[Max Intensity] start=rangeStart stop= nSlices");
+		run("Z Project...", "projection=[Max Intensity] start=rangeStart stop=nSlices");
 	}
 	
 	if (despeckle == true)
