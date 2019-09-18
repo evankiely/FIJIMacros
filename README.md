@@ -14,8 +14,8 @@ And our special is a lovely Chilean Sea Bass.
 
 **Resources For Learning More About The FIJI Macro Language**:
  - [Official Introduction](https://imagej.net/Introduction)
- - [Emory's Integrated Cellular Imaging Core's YouTube Channel](https://www.youtube.com/channel/UCRVa5DSphB5gHMaFKPgyKSQ)
  - [Documentation](https://imagej.net/ij/docs/index.html)
  - [Built-in Macro Functions](https://imagej.net/ij/developer/macro/functions.html)
  - [FIJI Scripting Tutorial](https://services.ini.uzh.ch/~acardona/fiji-tutorial/)
+ - [Integrated Cellular Imaging Core @ Emory University (YouTube Channel)](https://www.youtube.com/channel/UCRVa5DSphB5gHMaFKPgyKSQ)
  - [Miscellaneous Resources from the University of Latvia](http://priede.bf.lu.lv/ftp/pub/TIS/atteelu_analiize/ImageJ/apraksti/)
