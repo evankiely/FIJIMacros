@@ -13,9 +13,9 @@ This is an assortment of macros I have written to help automate processing of 5 
 And our special is a lovely Chilean Sea Bass.
 
 **Resources For Learning More About The FIJI Macro Language**:
- - [Official Introduction](https://imagej.net/Introduction)
  - [Documentation](https://imagej.net/ij/docs/index.html)
- - [Built-in Macro Functions](https://imagej.net/ij/developer/macro/functions.html)
+ - [Official Introduction](https://imagej.net/Introduction)
  - [FIJI Scripting Tutorial](https://services.ini.uzh.ch/~acardona/fiji-tutorial/)
- - [Integrated Cellular Imaging Core @ Emory University (YouTube Channel)](https://www.youtube.com/channel/UCRVa5DSphB5gHMaFKPgyKSQ)
+ - [Built-in Macro Functions](https://imagej.net/ij/developer/macro/functions.html)
  - [Miscellaneous Resources from the University of Latvia](http://priede.bf.lu.lv/ftp/pub/TIS/atteelu_analiize/ImageJ/apraksti/)
+ - [Integrated Cellular Imaging Core @ Emory University (YouTube Channel)](https://www.youtube.com/channel/UCRVa5DSphB5gHMaFKPgyKSQ)
