@@ -12,7 +12,7 @@ This is an assortment of macros I have written to help automate processing of 5 
 
 And our special is a lovely Chilean Sea Bass.
 
-**Resources for Learning More About IJ1 (FIJI Macro Language)**:
+**Resources For Learning More About The FIJI Macro Language**:
  - [Documentation](https://imagej.net/ij/docs/index.html)
  - [Built-in Macro Functions](https://imagej.net/ij/developer/macro/functions.html)
  - [FIJI Scripting Tutorial](https://services.ini.uzh.ch/~acardona/fiji-tutorial/)
