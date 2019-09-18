@@ -1,15 +1,12 @@
 //Welcome to Automator: A Batch Processing Wizard for FIJI! v0.2.2
 
 /* To Do:
- *  Update to assume intent if field left blank and/or throw error if missing value(s) are critical
  *  Eventually, add option for first image to be opened to user view such that they can provide macro input via action (essentially like an automated macro recorder)
  *  	Idea is that user would be able to do operations on a given image, the macro would pull those values, then apply them to a folder of interest
  *  Add descriptions of function - comment everything as necessary
  *  Add user definable timestamping location; label/timestamp by ROI? (see roiManagerMacros, ROI Manager Stack Demo and RoiManagerSpeedTestmacros)
  *  User Input for Save as AVI
  *  	Compression? <- Weird Issue with Prompt to Save When Adding Frame Rate and Compression to saveAs Command
- *  	Verify that Frame Rate Changes by Input Value
- *  UI/UX issues with Min/Max color values & save anywhere... Commented out code is cluttering
  */
 
 //User Input Starts Here <----------------------
@@ -117,12 +114,12 @@ else if(saveChoice == true)
 }
 
 setBatchMode(true);
-automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoice, savePath, interval, colorBlind, despeckle);
+automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoice, savePath, interval, colorBlind, despeckle, frameRate);
 setBatchMode(false);
 
 //Function Call Above, Function Creation Below <----------------------
 
-function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoice, savePath, interval, colorBlind, despeckle)
+function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoice, savePath, interval, colorBlind, despeckle, frameRate)
 {
 	channelIDs = newArray(redID, greenID, blueID);
 	if(colorBlind == "No")
@@ -158,7 +155,7 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 	}
 	if (numChan > 1)
 	{
-		for (i = 0; i < numChan; i++) //Allows this macro to expand to a huge number of comingled channels
+		for (i = 0; i < numChan; i++) //Allows this macro to expand to a huge number of comingled channels, with modifications elsewhere
 		{
 			numberOpened = 0;
 			for (timePoint = 0; timePoint < (files.length); timePoint++) //Runs through input folder
@@ -168,21 +165,22 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 					if (numberOpened == 0) //Opens first instance of a given channel by itself so as to avoid any errors from attempting to concatenate with only a single window open
 					{
 						open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
-						rename(channelNames[i]);
+						numberOpened++;
+						tempTitle = channelNames[i] + " - " + numberOpened;
+						rename(tempTitle);
 						
-						projectR(channelNames[i], rangeStart, rangeEnd, despeckle);
-
-						numberOpened++;	
+						projectR(tempTitle, rangeStart, rangeEnd, despeckle);
 					}
 					else if (numberOpened > 0)
 					{
 						open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
-						tempName = getTitle();
-
+						numberOpened++;
+						tempName = channelNames[i] + " - " + numberOpened;
+						rename(tempName);
 						projectR(tempName, rangeStart, rangeEnd, despeckle);
 
-						run("Concatenate...", "open image1 = channelNames[i] image2 = tempName");
-						rename(channelNames[i]);
+						run("Concatenate...", "open image1 = tempTitle image2 = tempName");
+						rename(tempTitle);
 					}
 				}
 				if (files.length == (timePoint + 1))
@@ -193,19 +191,18 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 						savePathCompleteMax = savePath + "Concatenated Max Projections" + File.separator;
 					}
 					run(channelColors[i]);
-					saveAs("Tiff", savePathCompleteMax + channelNames[i]);
+					saveAs("Tiff", savePathCompleteMax + channelNames[i]);  //<------- This must stay on. Macro requires these for later steps. Can be turned off in favor of using save in projectR & turning off concatenate above if memory resources are limited, but this will break the remaining functionality of the macro
 					close();
 				}
 			}
 			if (i == (numChan - 1))
 			{
-				mergR(numChan, channelNames, title, savePath, orientationChoice, interval, savePathCompleteMax);
+				mergR(numChan, channelNames, title, savePath, orientationChoice, interval, savePathCompleteMax, frameRate);
 			}
 		}
 	}
 	if (numChan == 1)
 	{
-		title = title + " - Processed";
 		numberOpened = 0;
 		for (timePoint = 0; timePoint < files.length; timePoint++)
 		{
@@ -214,21 +211,20 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 				if (numberOpened == 0)
 				{
 					open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
-					rename(title);
-					
-					projectR(title, rangeStart, rangeEnd, despeckle);
-
 					numberOpened++;
+					tempTitle = title + " - " + onlyColor + " - " + numberOpened;
+					rename(tempTitle);
+					projectR(tempTitle, rangeStart, rangeEnd, despeckle);
 				}
 				else if (numberOpened > 0)
 				{
 					open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
-					tempName = getTitle();
-
+					numberOpened++;
+					tempName = title + " - " + onlyColor + " - " + numberOpened;
+					rename(tempName);
 					projectR(tempName, rangeStart, rangeEnd, despeckle);
-
-					run("Concatenate...", "open image1 = title image2 = tempName");
-					rename(title);
+					run("Concatenate...", "open image1 = tempTitle image2 = tempName");
+					rename(tempTitle);
 				}
 			}
 			if (timePoint == (files.length - 1))
@@ -240,7 +236,7 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 				rename(title);
 				if (interval > 0)
 				{
-					animatR(title, orientationChoice, savePath, interval, numChan);
+					animatR(title, orientationChoice, savePath, interval, numChan, frameRate);
 				}
 			}
 		}
@@ -264,7 +260,7 @@ function projectR(imageTitle, rangeStart, rangeEnd, despeckle)
 	}
 	else if (rangeStart > 0 && rangeEnd == 0)
 	{
-		run("Z Project...", "projection=[Max Intensity] start=rangeStart stop=nSlices");
+		run("Z Project...", "projection=[Max Intensity] start=rangeStart stop=" + nSlices);
 	}
 	
 	if (despeckle == true)
@@ -277,13 +273,13 @@ function projectR(imageTitle, rangeStart, rangeEnd, despeckle)
 	close();
 	rename(imageTitle);
 
-	/*File.makeDirectory(savePath + "Clipped");
-	savePathClipped = savePath + "Clipped" + File.separator;
-	saveAs("Tiff", savePathClipped + imageTitle + timePoint); //<------------------- Uncomment here to save every timepoint after clipping (issue with naming convention)
+	/*File.makeDirectory(savePath + "Clipped & Projected");
+	savePathClipped = savePath + "Clipped & Projected" + File.separator;
+	saveAs("Tiff", savePathClipped + imageTitle); //<------------------- Uncomment here to save every timepoint after clipping & projecting (WORKS)
 	rename(imageTitle);*/
 }
 //-------------------------------
-/* <------------------------------------------------------- adjustR on hold for time being
+/* <------------------------------------------------------- adjustR on hold for time being (Should work as is, but untested)
 function adjustR(imageTitle, minMax, i)
 {
 	print(i);
@@ -291,7 +287,6 @@ function adjustR(imageTitle, minMax, i)
 	if (i == 0)
 	{
 		setMinAndMax(minMax[0], minMax[1]);
-		print(minMax[0] + " - " + minMax[1]);
 	}
 	else if (i == 1)
 	{
@@ -305,7 +300,7 @@ function adjustR(imageTitle, minMax, i)
 }
 */
 //-------------------------------
-function mergR(numChan, channelNames, title, savePath, orientationChoice, interval, savePathCompleteMax)
+function mergR(numChan, channelNames, title, savePath, orientationChoice, interval, savePathCompleteMax, frameRate)
 {
 	for (i = 0; i < numChan; i++)
 	{
@@ -328,7 +323,7 @@ function mergR(numChan, channelNames, title, savePath, orientationChoice, interv
 
 	if (interval > 0)
 	{
-		animatR(mergedName, orientationChoice, savePath, interval, numChan);
+		animatR(mergedName, orientationChoice, savePath, interval, numChan, frameRate);
 	}
 	if (interval == 0)
 	{
@@ -339,10 +334,14 @@ function mergR(numChan, channelNames, title, savePath, orientationChoice, interv
 	}
 }
 //--------------------------------
-function animatR(imageTitle, orientationChoice, savePath, interval, numChan)
+function animatR(imageTitle, orientationChoice, savePath, interval, numChan, frameRate)
 {
 	numTPs = nSlices/numChan;
 
+	if (frameRate == 0)
+	{
+		frameRate = 10;
+	}
 	if (numChan > 1)
 	{
 		run("Make Composite");
