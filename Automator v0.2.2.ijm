@@ -349,16 +349,16 @@ function animatR(imageTitle, orientationChoice, savePath, interval, numChan, fra
 	if (orientationChoice == "Vertically")
 	{
 		run("Label...", "format=00:00 starting=0 interval=interval x=1300 y=20 font=60 text=Hours:Minutes range=1-numTPs"); //Generates timestamp
-		run("Animation Options...", "speed=frameRate");
+		run("Animation Options...", "speed=" + frameRate);
 	}
 	else if (orientationChoice == "Horizontally")
 	{		
 		run("Label...", "format=00:00 starting=0 interval=interval x=5 y=0 font=60 text=Hours:Minutes range=1-numTPs"); //Generates timestamp
-		run("Animation Options...", "speed=frameRate");
+		run("Animation Options...", "speed=" + frameRate);
 	}
 	else if (orientationChoice == "I'll Do This Later")
 	{	
-		run("Animation Options...", "speed=frameRate");
+		run("Animation Options...", "speed=" + frameRate);
 	}
 	saveAs("avi", savePath + imageTitle); //Saves stack as an Avi, thus creating a movie where each image is a single frame
 	close(); //Closes the stack
