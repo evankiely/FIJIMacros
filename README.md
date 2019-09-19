@@ -26,9 +26,9 @@ This is an assortment of macros I have written to help automate processing of 5 
          - RAM: 512 GB
          
        - **Results**:
-         - Max CPU Load: 20.0% (spike for <1 second while merging)
+         - Max CPU Load: 20.0% (<1 second while merging)
          - Average CPU Load Range: 6 - 8%
-         - Max RAM Occupied: 49.1 GB (~1.5% total size of data)
+         - Max RAM Occupied: 49.1 GB (~1.5% initial size of data)
          - Total Elapsed Time: 3 Hours and 35 Minutes (~1 TB/hr)
 
 And our special is a lovely Chilean Sea Bass.
