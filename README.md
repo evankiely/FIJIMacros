@@ -19,13 +19,13 @@ This is an assortment of macros I have written to help automate processing of 5 
    
      - **Real World Test/Use Case**: Process 3.21 TB of data, comprised of 4,020 files
 
-       - This was done on a workstation with the following specifications:
+       - **Workstation Specifications**:
          - Operating System: Windows 10 x64
          - CPU: x2 Intel Xeon E5-2667 v4 @ 3.2GHz
          - GPU: NVIDIA Quadro M6000 24 GB
          - RAM: 512 GB
          
-       - Results:
+       - **Results**:
          - Max CPU Load: 20.0% (spike for <1 second while merging)
          - Average CPU Load Range: 6 - 8%
          - Max RAM Occupied: 49.1 GB (~1.5% total size of data)
