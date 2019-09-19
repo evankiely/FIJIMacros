@@ -319,7 +319,7 @@ function mergR(numChan, channelNames, title, savePath, orientationChoice, interv
 	mergedName = title + " - Merged";
 	rename(mergedName);
 
-	//saveAs("Tiff", savePath + mergedName); //<------------------- Uncomment here to save merged max project of all timepoints concatenated (WORKS)
+	saveAs("Tiff", savePath + mergedName); //<------------------- Comment here to turn off save merged max project of all timepoints concatenated
 
 	if (interval > 0)
 	{
