@@ -3,7 +3,7 @@
 
 This is an assortment of macros I have written to help automate processing of 5 dimensional (i.e. XYZ, time, & color) image data sets generated on various microscopes. They are typically limited to a small set of functions, defined more clearly in the code itself. As these were originally written for my lab, an acknowledgement and citation would be appreciated if used in the course of research culminating in a publication, or if modified to serve such a purpose.
 
-## The Macros on Tap Today Are:
+## Macros on Tap:
 
    - **Automator v0.2.2**: A batch processing wizard for large 5D data sets, with a focus on rapid screening. Enables reduction in dimensionality of the data set, thus providing much faster turnaround times and facilitating targeted review within volumetric visualization software (such as Imaris), while requiring minimal system resources and user involvement to deploy effectively.
  
