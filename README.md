@@ -24,6 +24,7 @@ This is an assortment of macros I have written to help automate processing of 5 
          - CPU: x2 Intel Xeon E5-2667 v4 @ 3.2GHz
          - GPU: NVIDIA Quadro M6000 24 GB
          - RAM: 512 GB
+         
        - Results:
          - Max CPU Load: 20.0% (spike for <1 second while merging)
          - Average CPU Load Range: 6 - 8%
