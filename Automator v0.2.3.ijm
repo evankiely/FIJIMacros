@@ -1,4 +1,4 @@
-//Welcome to Automator: A Batch Processing Wizard for FIJI! v0.2.2
+//Welcome to Automator: A Batch Processing Wizard for FIJI! v0.2.3
 
 /* To Do:
  *  Eventually, add option for first image to be opened to user view such that they can provide macro input via action (essentially like an automated macro recorder)
@@ -57,6 +57,8 @@ Dialog.addString("Blue Channel ID:", blueID, 10);
 Dialog.setInsets(0, 250, 0)
 Dialog.addCheckbox("Despeckle", false)
 Dialog.setInsets(0, 250, 0)
+Dialog.addCheckbox("High-Throughput", false)
+Dialog.setInsets(0, 250, 0)
 Dialog.addCheckbox("Save in a Different Location", false);
 Dialog.addChoice("Activate Colorblind Accomodation:" zSlice);
 Dialog.addMessage("(Green -> Cyan, Red -> Magenta, Blue -> Yellow)");
@@ -80,6 +82,7 @@ blueID = Dialog.getString();
 //minValB = Dialog.getNumber();
 //maxValB = Dialog.getNumber();
 despeckle = Dialog.getCheckbox();
+highTP = Dialog.getCheckbox();
 saveChoice = Dialog.getCheckbox();
 colorBlind = Dialog.getChoice();
 
@@ -122,19 +125,29 @@ setBatchMode(false);
 function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoice, savePath, interval, colorBlind, despeckle, frameRate)
 {
 	channelIDs = newArray(redID, greenID, blueID);
-	if(colorBlind == "No")
+	if(highTP == false)
 	{
-		channelColors = newArray("Red", "Green", "Blue");
-		redChan = title + " - Red";
-		greenChan = title + " - Green";
-		blueChan = title + " - Blue";
+		if(colorBlind == "No")
+		{
+			channelColors = newArray("Red", "Green", "Blue");
+			redChan = title + " - Red";
+			greenChan = title + " - Green";
+			blueChan = title + " - Blue";
+		}
+		else if(colorBlind == "Yes")
+		{
+			channelColors = newArray("Magenta", "Cyan", "Yellow");
+			redChan = title + " - Magenta";
+			greenChan = title + " - Cyan";
+			blueChan = title + " - Yellow";
+		}
 	}
-	else if(colorBlind == "Yes")
+	else if(highTP == true)
 	{
-		channelColors = newArray("Magenta", "Cyan", "Yellow");
-		redChan = title + " - Magenta";
-		greenChan = title + " - Cyan";
-		blueChan = title + " - Yellow";
+		channelColors = newArray("Grays", "Grays", "Grays");
+		redChan = title + " - " + redID;
+		greenChan = title + " - " + greenID;
+		blueChan = title + " - " + blueID;
 	}
 	
 	channelNames = newArray(redChan, greenChan, blueChan);
@@ -197,7 +210,17 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 			}
 			if (i == (numChan - 1))
 			{
-				mergR(numChan, channelNames, title, savePath, orientationChoice, interval, savePathCompleteMax, frameRate);
+				if(highTP == false)
+				{
+					mergR(numChan, channelNames, title, savePath, orientationChoice, interval, savePathCompleteMax, frameRate);
+				}
+				else if(highTP == true)
+				{
+					run("Close All");
+					Dialog.create("End Message"); 
+					Dialog.addMessage("Done!"); 
+					Dialog.show();
+				}
 			}
 		}
 	}
@@ -327,7 +350,7 @@ function mergR(numChan, channelNames, title, savePath, orientationChoice, interv
 	}
 	if (interval == 0)
 	{
-		run("Close All")
+		run("Close All");
 		Dialog.create("End Message"); 
 		Dialog.addMessage("Done!"); 
 		Dialog.show();
