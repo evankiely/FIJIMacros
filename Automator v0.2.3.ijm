@@ -3,7 +3,6 @@
 /* To Do:
  *  Eventually, add option for first image to be opened to user view such that they can provide macro input via action (essentially like an automated macro recorder)
  *  	Idea is that user would be able to do operations on a given image, the macro would pull those values, then apply them to a folder of interest
- *  Add descriptions of function - comment everything as necessary
  *  Add user definable timestamping location; label/timestamp by ROI? (see roiManagerMacros, ROI Manager Stack Demo and RoiManagerSpeedTestmacros)
  *  User Input for Save as AVI
  *  	Compression? <- Weird Issue with Prompt to Save When Adding Frame Rate and Compression to saveAs Command
@@ -124,10 +123,10 @@ setBatchMode(false);
 
 function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoice, savePath, interval, colorBlind, despeckle, frameRate)
 {
-	channelIDs = newArray(redID, greenID, blueID);
-	if(highTP == false)
+	channelIDs = newArray(redID, greenID, blueID); //Creates an array with user input channel IDs
+	if(highTP == false) //Checks for High-throughput
 	{
-		if(colorBlind == "No")
+		if(colorBlind == "No") //Checks for color blind and assigns appropriate colors
 		{
 			channelColors = newArray("Red", "Green", "Blue");
 			redChan = title + " - Red";
@@ -142,7 +141,7 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 			blueChan = title + " - Yellow";
 		}
 	}
-	else if(highTP == true)
+	else if(highTP == true) //Sets all colors to gray because High-Throughput is meant for unrelated image sets that will not be merged
 	{
 		channelColors = newArray("Grays", "Grays", "Grays");
 		redChan = title + " - " + redID;
@@ -150,71 +149,71 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 		blueChan = title + " - " + blueID;
 	}
 	
-	channelNames = newArray(redChan, greenChan, blueChan);
-	numChan = 0;
+	channelNames = newArray(redChan, greenChan, blueChan); //Makes an array of unique names based on user specified colors
+	numChan = 0; //Sets number of channels to 0 so it can be counted later
 	
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < 3; i++) //Max 3 channels, so max 3 loops
 	{
-		if (lengthOf(channelIDs[i]) > 0)
+		if (lengthOf(channelIDs[i]) > 0) //Very simple way of figuring out how many channels by checking if there was text entered in the corresponding box
 		{
-			onlyColor = channelColors[i];
+			onlyColor = channelColors[i]; //Set up to set these variables to the last value in the set of up to 3 channels. If only one specified, they will end up carrying the related information
 			onlyChan = channelIDs[i];
 			numChan++;
 		}
 	}
 	if (numChan == 0)
 	{
-		exit("Must provide at least 1 channel ID.");
+		exit("Must provide at least 1 channel ID."); //Error if 0 channel IDs input
 	}
-	if (numChan > 1)
+	if (numChan > 1) //Checks for number of channels being more than one because there is a difference in what is required when processing 1 vs. multiple channels
 	{
-		for (i = 0; i < numChan; i++) //Allows this macro to expand to a huge number of comingled channels, with modifications elsewhere
+		for (i = 0; i < numChan; i++) //i is being checked against number of channels here, so everything inside the loop happens the same number of times as there are channels
 		{
 			numberOpened = 0;
-			for (timePoint = 0; timePoint < (files.length); timePoint++) //Runs through input folder
+			for (timePoint = 0; timePoint < (files.length); timePoint++) //Runs through input folder, checking timePoint against total number of files
 			{
-				if (indexOf(files[timePoint], channelIDs[i]) >= 0) //Effectively allows segregation of files by channel ID by indexing through channelIDs list by increment value of the first for loop
+				if (indexOf(files[timePoint], channelIDs[i]) >= 0) //Effectively allows segregation of files by channel ID by indexing through channelIDs list by increment value of the first for loop (i.e. pulling in from the intitial channel tracking loop)
 				{
 					if (numberOpened == 0) //Opens first instance of a given channel by itself so as to avoid any errors from attempting to concatenate with only a single window open
 					{
 						open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 						numberOpened++;
-						tempTitle = channelNames[i] + " - " + numberOpened;
+						tempTitle = channelNames[i] + " - " + numberOpened; //Names the open window with something specific and known so we can opperate on it with certainty later
 						rename(tempTitle);
 						
-						projectR(tempTitle, rangeStart, rangeEnd, despeckle);
+						projectR(tempTitle, rangeStart, rangeEnd, despeckle); //Sends file to be max projected
 					}
-					else if (numberOpened > 0)
+					else if (numberOpened > 0) //After the first instance has been processed, we can now move on to the remaining
 					{
 						open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 						numberOpened++;
-						tempName = channelNames[i] + " - " + numberOpened;
+						tempName = channelNames[i] + " - " + numberOpened; //Notice here how the name set up is similar but not the same variable
 						rename(tempName);
-						projectR(tempName, rangeStart, rangeEnd, despeckle);
+						projectR(tempName, rangeStart, rangeEnd, despeckle); //Sends files to be max projected
 
-						run("Concatenate...", "open image1 = tempTitle image2 = tempName");
-						rename(tempTitle);
+						run("Concatenate...", "open image1 = tempTitle image2 = tempName"); //Concatenates our two open windows. This is where the naming convention becomes very important
+						rename(tempTitle); //Newly concatenated file is renamed to reserved name from if statement above, preserving the unique ID that allows ordered concatenation to take place
 					}
 				}
-				if (files.length == (timePoint + 1))
+				if (files.length == (timePoint + 1)) //If we've made it through all the files in the folder **for a given channel** (still in the initial for loop)
 				{
-					if (i == 0)
+					if (i == 0) //if this is the first channel, make a new folder to hold the results
 					{
 						File.makeDirectory(savePath + "Concatenated Max Projections");
 						savePathCompleteMax = savePath + "Concatenated Max Projections" + File.separator;
 					}
-					run(channelColors[i]);
+					run(channelColors[i]); //Sets the channel to the corresponding color
 					saveAs("Tiff", savePathCompleteMax + channelNames[i]);  //<------- This must stay on. Macro requires these for later steps. Can be turned off in favor of using save in projectR & turning off concatenate above if memory resources are limited, but this will break the remaining functionality of the macro
 					close();
 				}
 			}
-			if (i == (numChan - 1))
+			if (i == (numChan - 1)) //If we have done the above for every channel
 			{
-				if(highTP == false)
+				if(highTP == false) //If High-Throughput is not on, send the various colors to be merged
 				{
 					mergR(numChan, channelNames, title, savePath, orientationChoice, interval, savePathCompleteMax, frameRate);
 				}
-				else if(highTP == true)
+				else if(highTP == true) //If High-Throughput is on, close everything and alert the user
 				{
 					run("Close All");
 					Dialog.create("End Message"); 
@@ -224,7 +223,7 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 			}
 		}
 	}
-	if (numChan == 1)
+	if (numChan == 1) //If there is only a single channel (most of this is repeated from above so comments will be sparse here)
 	{
 		numberOpened = 0;
 		for (timePoint = 0; timePoint < files.length; timePoint++)
@@ -243,7 +242,7 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 				{
 					open(openPath + files[timePoint]); //Opens the folder at location timePoint (i.e. number in the list relative to other items in the folder)
 					numberOpened++;
-					tempName = title + " - " + onlyColor + " - " + numberOpened;
+					tempName = title + " - " + onlyColor + " - " + numberOpened; //Recall that onlyColor is determined earlier based on presence or abscense of text
 					rename(tempName);
 					projectR(tempName, rangeStart, rangeEnd, despeckle);
 					run("Concatenate...", "open image1 = tempTitle image2 = tempName");
@@ -257,16 +256,24 @@ function automatR(openPath, files, title, rangeStart, rangeEnd, orientationChoic
 				run(onlyColor);
 				saveAs("Tif", savePath + title);
 				rename(title);
-				if (interval > 0)
+				
+				if (interval > 0) //If user inputs a time between acquisitions of 0, the macro will not animate it
 				{
-					animatR(title, orientationChoice, savePath, interval, numChan, frameRate);
+					animatR(title, orientationChoice, savePath, interval, numChan, frameRate); //Sends the file to be animated
+				}
+				else if (interval == 0)
+				{
+					run("Close All");
+					Dialog.create("End Message"); 
+					Dialog.addMessage("Done!"); 
+					Dialog.show();
 				}
 			}
 		}
 	}
 }
 //-------------------------------
-function projectR(imageTitle, rangeStart, rangeEnd, despeckle)
+function projectR(imageTitle, rangeStart, rangeEnd, despeckle) //Max projection function with input flexibility defined below
 {	
 	selectWindow(imageTitle);
 	if (rangeStart == 0 && rangeEnd == 0)
@@ -288,7 +295,7 @@ function projectR(imageTitle, rangeStart, rangeEnd, despeckle)
 	
 	if (despeckle == true)
 	{
-		run("Despeckle");
+		run("Despeckle"); //Optional despeckle
 	}
 	
 	rename(imageTitle + " - MAX");
@@ -325,12 +332,12 @@ function adjustR(imageTitle, minMax, i)
 //-------------------------------
 function mergR(numChan, channelNames, title, savePath, orientationChoice, interval, savePathCompleteMax, frameRate)
 {
-	for (i = 0; i < numChan; i++)
+	for (i = 0; i < numChan; i++) //Opens the seperate max projection stacks made earlier (1 per channel)
 	{
 		open(savePathCompleteMax + channelNames[i] + ".tif");
 		rename("chan" + i);
 	}
-	if (numChan == 2)
+	if (numChan == 2) //This and below else if actually do the merging. Note the channels seemingly out of order. This is because FIJI orders the colors as GRB instead of RGB
 	{	
 		run("Merge Channels...", "c1=chan1 c2=chan0 create");
 	}
@@ -346,7 +353,7 @@ function mergR(numChan, channelNames, title, savePath, orientationChoice, interv
 
 	if (interval > 0)
 	{
-		animatR(mergedName, orientationChoice, savePath, interval, numChan, frameRate);
+		animatR(mergedName, orientationChoice, savePath, interval, numChan, frameRate); //Sends the file to be animated
 	}
 	if (interval == 0)
 	{
@@ -359,17 +366,17 @@ function mergR(numChan, channelNames, title, savePath, orientationChoice, interv
 //--------------------------------
 function animatR(imageTitle, orientationChoice, savePath, interval, numChan, frameRate)
 {
-	numTPs = nSlices/numChan;
+	numTPs = nSlices/numChan; //Calculates number of timepoints; Even when merged FIJI calculates the number of slices as the product of number of channels and Z frames (i.e. 2 channels, 3 Zs = 6 slices)
 
-	if (frameRate == 0)
+	if (frameRate == 0) //Sets the framerate to 10 FPS by default
 	{
 		frameRate = 10;
 	}
 	if (numChan > 1)
 	{
-		run("Make Composite");
+		run("Make Composite"); //Not sure if number of timepoints == nSlices after merge. Something to think about
 	}
-	if (orientationChoice == "Vertically")
+	if (orientationChoice == "Vertically") //x and y values are arbitrary holdovers from an earlier macro. Still have not figured out an efficient way of determining this (even as a user it is trial and error for me)
 	{
 		run("Label...", "format=00:00 starting=0 interval=interval x=1300 y=20 font=60 text=Hours:Minutes range=1-numTPs"); //Generates timestamp
 		run("Animation Options...", "speed=" + frameRate);
