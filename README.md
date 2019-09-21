@@ -3,7 +3,7 @@
 
 This is an assortment of macros I have written to help automate processing of 5 dimensional (i.e. XYZ, time, & color) image data sets generated on various microscopes. They are typically limited to a small set of functions, defined more clearly in the code itself. As these were originally written for my lab, an acknowledgement and citation would be appreciated if used in the course of research culminating in a publication, or if modified to serve such a purpose.
 
-## Macros on Tap:
+## Macros on Tap
 
    - **Automator v0.2.3**: A batch processing wizard with a focus on rapid, high-throughput screening of large 5D data sets. Enables reduction in dimensionality of the data set, thus providing faster turnaround times and facilitating accelerated targeted review within volumetric visualization software (such as Imaris), while requiring minimal system resources and user involvement to deploy effectively.
  
@@ -32,7 +32,7 @@ This is an assortment of macros I have written to help automate processing of 5 
          - Total Elapsed Time: 3 Hours and 35 Minutes (~1 TB/hr)
          - Note: GPU Omitted Intentionally, as FIJI is CPU Optimized
 
-## Resources For Learning More About The FIJI Macro Language:
+## Resources For Learning More About The FIJI Macro Language
  - [Documentation](https://imagej.net/ij/docs/index.html)
  - [Official Introduction](https://imagej.net/Introduction)
  - [FIJI Scripting Tutorial](https://services.ini.uzh.ch/~acardona/fiji-tutorial/)
