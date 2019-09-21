@@ -32,7 +32,7 @@ This is an assortment of macros I have written to help automate processing of 5 
          - Total Elapsed Time: 3 Hours and 35 Minutes (~1 TB/hr)
          - Note: GPU Omitted Intentionally, as FIJI is CPU Optimized
 
-**Resources For Learning More About The FIJI Macro Language**:
+## Resources For Learning More About The FIJI Macro Language:
  - [Documentation](https://imagej.net/ij/docs/index.html)
  - [Official Introduction](https://imagej.net/Introduction)
  - [FIJI Scripting Tutorial](https://services.ini.uzh.ch/~acardona/fiji-tutorial/)
