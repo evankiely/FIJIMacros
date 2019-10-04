@@ -5,7 +5,7 @@ This is an assortment of macros I have written to help automate processing of 5 
 
 ## Macros on Tap
 
-   - **Automator v0.2.3**: A batch processing wizard with a focus on rapid, high-throughput screening of large 5D data sets. Enables reduction in dimensionality of the data set, thus providing faster turnaround times and facilitating accelerated targeted review within volumetric visualization software (such as Imaris), while requiring minimal system resources and user involvement to deploy effectively.
+   - **Automator v0.2.3**: A batch processing wizard with a focus on rapid, high-throughput screening of large 5D data sets. Enables reduction in dimensionality of the data set, providing faster turnaround times and facilitating accelerated targeted review within volumetric visualization software (such as Imaris), while requiring minimal system resources and user involvement to deploy effectively.
  
      - **Function**: Creates maximum intensity projections from a specified range of Zs, despeckles upon request, concatenates max projections temporally, merges disparate channels, and animates the results over time.
  
