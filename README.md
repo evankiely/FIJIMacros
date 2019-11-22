@@ -37,5 +37,5 @@ This is an assortment of macros I have written to help automate processing of 5 
  - [Official Introduction](https://imagej.net/Introduction)
  - [FIJI Scripting Tutorial](https://services.ini.uzh.ch/~acardona/fiji-tutorial/)
  - [Built-in Macro Functions](https://imagej.net/ij/developer/macro/functions.html)
+ - [Integrated Cellular Imaging Core @ Emory University](https://www.youtube.com/channel/UCRVa5DSphB5gHMaFKPgyKSQ)
  - [Miscellaneous Resources from the University of Latvia](http://priede.bf.lu.lv/ftp/pub/TIS/atteelu_analiize/ImageJ/apraksti/)
- - [Integrated Cellular Imaging Core @ Emory University (YouTube Channel)](https://www.youtube.com/channel/UCRVa5DSphB5gHMaFKPgyKSQ)
