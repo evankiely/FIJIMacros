@@ -1,7 +1,7 @@
 # FIJIMacros
 **Macros for FIJI in the FIJI Macro Language**
 
-This is an assortment of macros I have written to help automate processing of 5 dimensional (i.e. XYZ, time, & color) image data sets generated on various microscopes. As these were originally written for my lab, an acknowledgement and citation would be appreciated if used in the course of research culminating in a publication, or if modified to serve such a purpose.
+This is an assortment of macros I have written to help automate processing of 5 dimensional (i.e. XYZ, time, & color) image data sets generated on various microscopes. As these were originally written for my lab, acknowledgement/citation would be appreciated if used in the course of research culminating in a publication, or if modified to serve such a purpose.
 
 ## Macros on Tap
 
