@@ -3,7 +3,7 @@
 
 This is an assortment of macros I have written to help automate processing of 5 dimensional (i.e. XYZ, time, & color) image data sets generated on various microscopes.
 
-**Note:** As this originally written for my lab, acknowledgement/citation would be appreciated if used in a meaningful way to facilitate research culminating in a publication, and/or if modified to serve such a purpose.
+**Note:** As this was originally written for my lab, acknowledgement/citation would be appreciated if used in a meaningful way to facilitate research culminating in a publication, and/or if modified to serve such a purpose.
 
 ## Macros on Tap
 
