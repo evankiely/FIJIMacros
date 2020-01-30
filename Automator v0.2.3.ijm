@@ -1,4 +1,5 @@
 // Written by Evan J. Kiely for the Gilbert-Ross Lab, Emory University, Winter 2019
+// For more information, please see here: https://github.com/evanjkiely/FIJIMacros
 // Licensed under the GNU General Public License v3.0
 
 //Welcome to Automator: A Batch Processing Wizard for FIJI! v0.2.3
